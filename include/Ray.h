@@ -5,21 +5,21 @@
 #ifndef RAYTRACING_RAY_H
 #define RAYTRACING_RAY_H
 
-#include "vec3.h"
+#include <Eigen/Core>
 
 class Ray {
  public:
-  vec3 origin;
-  vec3 direction;
+  Eigen::Vector3d origin;
+  Eigen::Vector3d direction;
 
   Ray() {}
 
-  Ray(const vec3 & origin, const vec3 & direction) {
+  Ray(const Eigen::Vector3d & origin, const Eigen::Vector3d & direction) {
     this->origin = origin;
     this->direction = direction;
   }
 
-  vec3 point_at_t(double t) const {
+  Eigen::Vector3d point_at_t(double t) const {
     return origin + t * direction;
   }
 };

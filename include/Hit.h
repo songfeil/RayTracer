@@ -5,14 +5,15 @@
 #ifndef RAYTRACING_HIT_H
 #define RAYTRACING_HIT_H
 
-#include "vec3.h"
-#include "Material.h"
+#include <Eigen/Core>
+
+class Material;
 
 class Hit {
  public:
   double t;
-  vec3 p;
-  vec3 n;
+  Eigen::Vector3d p;
+  Eigen::Vector3d n;
   Material * mat_ptr;
 };
 

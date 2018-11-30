@@ -6,16 +6,17 @@
 #define RAYTRACING_SPHERE_H
 
 #include "Object.h"
+#include <Eigen/Core>
 
 class Sphere : public Object {
  public:
-  vec3 center;
+  Eigen::Vector3d center;
   double radius;
   Material * mat_ptr;
 
   Sphere () {}
 
-  Sphere (vec3 & center, double radius, Material * m) {
+  Sphere (Eigen::Vector3d & center, double radius, Material * m) {
     this->center = center;
     this->radius = radius;
     this->mat_ptr = m;
