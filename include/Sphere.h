@@ -16,7 +16,7 @@ class Sphere : public Object {
 
   Sphere () {}
 
-  Sphere (Eigen::Vector3d & center, double radius, Material * m) {
+  Sphere (const Eigen::Vector3d & center, double radius, Material * m) {
     this->center = center;
     this->radius = radius;
     this->mat_ptr = m;

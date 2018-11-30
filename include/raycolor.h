@@ -10,6 +10,6 @@
 #include "Ray.h"
 #include "Object.h"
 
-Eigen::Vector3d raycolor(const Ray & r, Object * world);
+Eigen::Vector3d raycolor(const Ray & r, Object * world, int depth);
 
 #endif //RAYTRACING_RAYCOLOR_H

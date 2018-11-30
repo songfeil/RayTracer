@@ -4,12 +4,18 @@
 
 #include "raycolor.h"
 
-Eigen::Vector3d raycolor(const Ray & r, Object * world)
+Eigen::Vector3d raycolor(const Ray & r, Object * world, int depth)
 {
   Hit rec;
   if (world->intersect(r,1.0,std::numeric_limits<double>::infinity(),rec)) {
-    Eigen::Vector3d target = rec.p + rec.n + random_in_unit_sphere();
-    return 0.5 * raycolor(Ray(rec.p, target - rec.p), world);
+    Ray scattered;
+    Eigen::Vector3d attenuation;
+
+    if (depth > 0 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
+      return attenuation.cwiseProduct(raycolor(scattered, world, depth - 1));
+    } else {
+      return Eigen::Vector3d(0, 0, 0);
+    }
   } else {
     Eigen::Vector3d unit_direction = r.direction.normalized();
     double t = 0.5 *(unit_direction(1) + 1.0);
