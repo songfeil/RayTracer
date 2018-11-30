@@ -52,6 +52,7 @@ class Sphere : public Object {
       hit.n = (ray.origin + (t * ray.direction) - this->center).normalized();
       hit.p = ray.point_at_t(t);
       hit.mat_ptr = this->mat_ptr;
+      hit.obj_ptr = this;
       return true;
     } else if (t2 >= min_t && t2 <= max_t) {
       double t = t2;
@@ -59,6 +60,7 @@ class Sphere : public Object {
       hit.n = (ray.origin + (t * ray.direction) - this->center).normalized();
       hit.p = ray.point_at_t(t);
       hit.mat_ptr = this->mat_ptr;
+      hit.obj_ptr = this;
       return true;
     } else {
       return false;

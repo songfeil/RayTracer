@@ -10,13 +10,15 @@
 #include "raycolor.h"
 #include "Material.h"
 #include "random_scene.h"
+#include "Texture.h"
 
 int main(int argc, char * argv[])
 {
 
   int width =  640;
   int height = 360;
-  int numSample = 30;
+  int numSample = 50;
+  int recDepth = 50;
 
   std::vector<unsigned char> rgb_image(3*width*height);
 
@@ -30,16 +32,7 @@ int main(int argc, char * argv[])
 
   Camera cam(lookfrom, lookat, vup, vfov, aspect, aperture, focus_dist);
 
-  Object * list[4];
-
-  list[0] = new Sphere(Eigen::Vector3d(0,0,-1),0.5,new lambertian(Eigen::Vector3d(0.8,0.3,0.3)));
-  list[1] = new Sphere(Eigen::Vector3d(0,-100.5,-1),100,new lambertian(Eigen::Vector3d(0.8,0.8,0.0)));
-  list[2] = new Sphere(Eigen::Vector3d(1,0,-1),0.5,new metal(Eigen::Vector3d(0.8,0.6,0.2),0.3));
-  list[3] = new Sphere(Eigen::Vector3d(-1,0,-1),0.5,new dielectric(1.5));
-
-  Object * world = new ObjectList(list, 4);
-
-  world = random_scene();
+  Object * world = random_scene();
 
   for(int j=0;j<height;j++)
   {
@@ -56,7 +49,7 @@ int main(int argc, char * argv[])
         Ray r = cam.get_ray(u, v);
 
         Eigen::Vector3d p = r.point_at_t(2.0);
-        rgb += raycolor(r, world, 200);
+        rgb += raycolor(r, world, recDepth);
       }
 
       rgb /= numSample;

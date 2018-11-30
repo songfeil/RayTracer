@@ -9,12 +9,16 @@
 #include "Object.h"
 #include "ObjectList.h"
 #include "Sphere.h"
+#include "Texture.h"
 
 
-Object *random_scene() {
+Object * random_scene() {
   int n = 500;
   Object **list = new Object*[n+1];
-  list[0] =  new Sphere(Eigen::Vector3d(0,-700,0), 700, new lambertian(Eigen::Vector3d(0.5, 0.5, 0.5)));
+
+  Texture *checker = new checkerBoardTexture(new constantTexture(Eigen::Vector3d(0.2, 0.3, 0.1)),
+                                             new constantTexture(Eigen::Vector3d(0.9, 0.9, 0.9)));
+  list[0] = new Sphere(Eigen::Vector3d(0, -700, 0), 700, new lambertian(checker));
   int i = 1;
   for (int a = -11; a < 11; a++) {
     for (int b = -11; b < 11; b++) {
@@ -36,7 +40,7 @@ Object *random_scene() {
   }
 
   list[i++] = new Sphere(Eigen::Vector3d(0, 1, 0), 1.0, new dielectric(2.5));
-  list[i++] = new Sphere(Eigen::Vector3d(-4, 1, 0), 1.0, new lambertian(Eigen::Vector3d(0.4, 0.2, 0.1)));
+  list[i++] = new Sphere(Eigen::Vector3d(-4, 1, 0), 1.0, new diffuseLight(new constantTexture(Eigen::Vector3d(1.0, 1.0, 1.0))));
   list[i++] = new Sphere(Eigen::Vector3d(4, 1, 0), 1.0, new metal(Eigen::Vector3d(1, 1, 1), 0.0));
 
   return new ObjectList(list,i);

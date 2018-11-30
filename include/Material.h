@@ -9,22 +9,33 @@
 #include "randomFunc.h"
 #include "Hit.h"
 #include <Eigen/Core>
+#include "Texture.h"
 
 class Material {
  public:
   virtual bool scatter(const Ray & r_in, const Hit & rec, Eigen::Vector3d & attenuation, Ray & scattered) const = 0;
+
+  virtual Eigen::Vector3d emitted(double u,double v,const Eigen::Vector3d &p) const {
+    return Eigen::Vector3d(0,0,0);
+  };
 };
 
 class lambertian : public Material {
  public:
-  lambertian(const Eigen::Vector3d & a) : albedo(a) {}
+  Texture * albedo;
+
+  lambertian(Texture * a) : albedo(a) {}
+
+  lambertian(const Eigen::Vector3d & a) {
+    albedo = new constantTexture(a);
+  }
+
   virtual bool scatter(const Ray & r_in, const Hit & rec, Eigen::Vector3d & attenuation, Ray & scattered) const {
     Eigen::Vector3d target = rec.p + rec.n + random_in_unit_sphere();
-    scattered = Ray(rec.p, target-rec.p);
-    attenuation = albedo;
+    scattered = Ray(rec.p, target - rec.p);
+    attenuation = albedo->value(0.0, 0.0, rec.p);
     return true;
   }
-  Eigen::Vector3d albedo;
 };
 
 static Eigen::Vector3d reflect(const Eigen::Vector3d & v, const Eigen::Vector3d & n) {
@@ -33,21 +44,24 @@ static Eigen::Vector3d reflect(const Eigen::Vector3d & v, const Eigen::Vector3d 
 
 class metal : public Material {
  public:
-  metal(const Eigen::Vector3d & a, float f) : albedo(a) { if (f < 1) fuzz = f; else fuzz = 1; }
+  Eigen::Vector3d albedo;
+  double fuzz;
+
+  metal(const Eigen::Vector3d & a, double f) : albedo(a) { if (f < 1) fuzz = f; else fuzz = 1; }
+
   virtual bool scatter(const Ray & r_in, const Hit & rec, Eigen::Vector3d & attenuation, Ray & scattered) const  {
     Eigen::Vector3d reflected = reflect(r_in.direction.normalized(), rec.n);
-    scattered = Ray(rec.p, reflected + fuzz*random_in_unit_sphere());
+    scattered = Ray(rec.p, reflected + fuzz * random_in_unit_sphere());
     attenuation = albedo;
     return (scattered.direction.dot(rec.n) > 0);
   }
-  Eigen::Vector3d albedo;
-  double fuzz;
+
 };
 
 static bool refract(const Eigen::Vector3d & v, const Eigen::Vector3d & n, double ni_over_nt, Eigen::Vector3d & refracted) {
   Eigen::Vector3d uv = v.normalized();
-  float dt = uv.dot(n);
-  float discriminant = 1.0 - ni_over_nt*ni_over_nt*(1-dt*dt);
+  double dt = uv.dot(n);
+  double discriminant = 1.0 - ni_over_nt*ni_over_nt*(1-dt*dt);
   if (discriminant > 0) {
     refracted = ni_over_nt*(uv - n*dt) - n*sqrt(discriminant);
     return true;
@@ -64,7 +78,10 @@ static double schlick(double cosine, double ref_idx) {
 
 class dielectric : public Material {
  public:
-  dielectric(float ri) : ref_idx(ri) {}
+  double ref_idx;
+
+  dielectric(double ri) : ref_idx(ri) {}
+
   virtual bool scatter(const Ray & r_in, const Hit & rec, Eigen::Vector3d & attenuation, Ray & scattered) const  {
     Eigen::Vector3d outward_normal;
     Eigen::Vector3d reflected = reflect(r_in.direction, rec.n);
@@ -90,15 +107,27 @@ class dielectric : public Material {
     else
       reflect_prob = 1.0;
 
-    // 随机数小与反射系数，设为反射光线，反之为折射光线
     if (drand48() < reflect_prob)
       scattered = Ray(rec.p, reflected);
     else
       scattered = Ray(rec.p, refracted);
     return true;
   }
+};
 
-  double ref_idx;
+class diffuseLight :public Material {
+ public:
+  Texture * emit;
+
+  diffuseLight(Texture * a) : emit(a) {}
+
+  virtual bool scatter(const Ray & r_in, const Hit & rec, Eigen::Vector3d & attenuation, Ray & scattered) const {
+    return false;
+  }
+
+  virtual Eigen::Vector3d emitted(double u,double v,const Eigen::Vector3d &p) const {
+    return emit->value(u,v,p);
+  }
 };
 
 #endif //RAYTRACING_MATERIAL_H

@@ -8,12 +8,14 @@
 #include <Eigen/Core>
 
 class Material;
+class Object;
 
 class Hit {
  public:
   double t;
   Eigen::Vector3d p;
   Eigen::Vector3d n;
+  const Object * obj_ptr;
   Material * mat_ptr;
 };
 
