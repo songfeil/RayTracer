@@ -47,15 +47,20 @@ static Eigen::Vector3d reflect(const Eigen::Vector3d & v, const Eigen::Vector3d 
 
 class metal : public Material {
  public:
-  Eigen::Vector3d albedo;
+  Texture * albedo;
   double fuzz;
 
-  metal(const Eigen::Vector3d & a, double f) : albedo(a) { if (f < 1) fuzz = f; else fuzz = 1; }
+  metal(const Eigen::Vector3d & a, double f) : albedo(new constantTexture(a)) { if (f < 1) fuzz = f; else fuzz = 1; }
+
+  metal(Texture * a, double f) : albedo(a) { if (f < 1) fuzz = f; else fuzz = 1; }
 
   virtual bool scatter(const Ray & r_in, const Hit & rec, Eigen::Vector3d & attenuation, Ray & scattered) const  {
     Eigen::Vector3d reflected = reflect(r_in.direction.normalized(), rec.n);
     scattered = Ray(rec.p, reflected + fuzz * random_in_unit_sphere());
-    attenuation = albedo;
+
+    double u, v;
+    rec.getUV(u, v);
+    attenuation = albedo->value(u, v, rec.p);
     return (scattered.direction.dot(rec.n) > 0);
   }
 
@@ -82,14 +87,20 @@ static double schlick(double cosine, double ref_idx) {
 class dielectric : public Material {
  public:
   double ref_idx;
+  Texture * albedo;
 
-  dielectric(double ri) : ref_idx(ri) {}
+  dielectric(double ri) : ref_idx(ri), albedo(new constantTexture(Eigen::Vector3d(1.0, 1.0, 1.0))) {}
+  dielectric(double ri, Texture * a) : ref_idx(ri), albedo(a) {}
 
   virtual bool scatter(const Ray & r_in, const Hit & rec, Eigen::Vector3d & attenuation, Ray & scattered) const  {
     Eigen::Vector3d outward_normal;
     Eigen::Vector3d reflected = reflect(r_in.direction, rec.n);
     double ni_over_nt;
-    attenuation = Eigen::Vector3d(1.0, 1.0, 1.0);
+
+    double u, v;
+    rec.getUV(u, v);
+    attenuation = albedo->value(u, v, rec.p);
+
     Eigen::Vector3d refracted;
     double reflect_prob;
     double cosine;
