@@ -33,7 +33,10 @@ class lambertian : public Material {
   virtual bool scatter(const Ray & r_in, const Hit & rec, Eigen::Vector3d & attenuation, Ray & scattered) const {
     Eigen::Vector3d target = rec.p + rec.n + random_in_unit_sphere();
     scattered = Ray(rec.p, target - rec.p);
-    attenuation = albedo->value(0.0, 0.0, rec.p);
+
+    double u, v;
+    rec.getUV(u, v);
+    attenuation = albedo->value(u, v, rec.p);
     return true;
   }
 };

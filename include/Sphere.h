@@ -66,6 +66,13 @@ class Sphere : public Object {
       return false;
     }
   }
+
+  virtual void getUV(const Hit * h, double & u, double & v) const {
+    double phi = atan2(h->p(2), h->p(0));
+    double theta = asin(h->p(1));
+    u = 1-(phi + M_PI) / (2*M_PI);
+    v = (theta + M_PI/2) / M_PI;
+  }
 };
 
 #endif //RAYTRACING_SPHERE_H

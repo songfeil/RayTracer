@@ -17,6 +17,9 @@ class Hit {
   Eigen::Vector3d n;
   const Object * obj_ptr;
   Material * mat_ptr;
+  int fid;
+
+  void getUV(double & u, double & v) const;
 };
 
 #endif //RAYTRACING_HIT_H

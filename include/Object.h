@@ -13,7 +13,7 @@
 class Object {
  public:
   virtual bool intersect(const Ray & ray, double min_t, double max_t, Hit & hit) const = 0;
-  virtual void getUV(const Eigen::Vector3d & p, double & u, double & v) const {
+  virtual void getUV(const Hit * h, double & u, double & v) const {
     u = 0;
     v = 0;
   };

@@ -44,4 +44,27 @@ class checkerBoardTexture : public Texture {
 
 };
 
+class imageTexture : public Texture {
+ public:
+  imageTexture() {}
+
+  imageTexture(unsigned char *pixels, int width, int height) : data(pixels), nx(width), ny(height) {}
+
+  virtual Eigen::Vector3d value(double u, double v, const Eigen::Vector3d & p) const {
+    int i = (1 - u) * nx;
+    int j = (1 - v) * ny - 0.001;
+    if (i < 0) i = 0;
+    if (j < 0) j = 0;
+    if (i > nx-1) i = nx-1;
+    if (j > ny-1) j = ny-1;
+    double r = int(data[3*i + 3*nx*j]  ) / 255.0;
+    double g = int(data[3*i + 3*nx*j+1]) / 255.0;
+    double b = int(data[3*i + 3*nx*j+2]) / 255.0;
+    return Eigen::Vector3d(r, g, b);
+  }
+
+  unsigned char *data;
+  int nx, ny;
+};
+
 #endif //RAYTRACING_TEXTURE_H

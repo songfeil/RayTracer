@@ -12,17 +12,19 @@
 #include "random_scene.h"
 #include "Texture.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+
 int main(int argc, char * argv[])
 {
 
-  int width =  640;
-  int height = 360;
-  int numSample = 50;
+  int width =  640; // 640
+  int height = 360; // 360
+  int numSample = 500;
   int recDepth = 50;
 
   std::vector<unsigned char> rgb_image(3*width*height);
 
-  Eigen::Vector3d lookfrom = Eigen::Vector3d(13, 2, 3);
+  Eigen::Vector3d lookfrom = Eigen::Vector3d(-13, 2, 3);
   Eigen::Vector3d lookat = Eigen::Vector3d(0, 0, 0);
   Eigen::Vector3d vup = Eigen::Vector3d(0, 1, 0);
   double vfov = 30;
@@ -33,6 +35,10 @@ int main(int argc, char * argv[])
   Camera cam(lookfrom, lookat, vup, vfov, aspect, aperture, focus_dist);
 
   Object * world = random_scene();
+
+//  int nx, ny, nn;
+//  unsigned char *tex_data = stbi_load("picture.jpg", &nx, &ny, &nn, 0);
+//  Material * mat = new lambertian(new imageTexture(tex_data, nx, ny));
 
   for(int j=0;j<height;j++)
   {
